@@ -1,0 +1,27 @@
+{
+	"name": "skyguest/ecadapter",
+	"description": "ecshop adapter",
+	"license": "MIT",
+    "authors": [
+        {
+            "name": "Young",
+            "email": "ybys@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "pimple/pimple": "~3.0",
+        "illuminate/database": "^5.2",
+        "illuminate/filesystem": "^5.2",
+        "illuminate/view": "^5.2",
+        "monolog/monolog": "^1.17"
+    },
+    "autoload": {
+        "psr-4": {
+            "Skyguest\\Ecadapter\\": "src/"
+        },
+        "files": [
+            "src/Foundation/helpers.php"
+        ]
+    }
+}
