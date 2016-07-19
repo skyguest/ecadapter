@@ -14,6 +14,7 @@ class LoadServiceProviders {
 			$app->register($service);
 			if ( $service->needBoot() ) {
 				// 以后再完善
+				$service->boot($app);
 			}
 		}
 	}

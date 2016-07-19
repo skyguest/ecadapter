@@ -46,12 +46,20 @@ class Core {
 		// ======== 开始调度，设置调度那个控制器===============
 		$group = $group ?: 'Web';
 		$controller = $controller ?: $request->get('c', 'DefaultController');
+
+		$controller = strrpos($controller, 'Controller') !== false ? $controller : $controller . 'Controller';
+
 		$function = $function ?: $request->get('m', 'index');
 		$class = '\\App\\Controllers\\'.$group.'\\'.ucfirst($controller);
 		$load_class = $class . "::" . $function;
 
 		if ( !class_exists($class) ) {
 			$load_class = '\\App\\Controllers\\'.$group.'\\NoFoundController::index';
+		}
+
+		// 如果没有找到类，设置为404
+		if ( !is_callable([$class, $function]) ) {
+			$load_class = NoFoundController::class . '::index';
 		}
 
 		// ====================================================
