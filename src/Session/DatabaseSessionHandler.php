@@ -141,7 +141,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
 
             $this->getSessionTable()->where('sesskey', $save_sessionId)->update([
             	'expiry' => $this->time,
-            	'ip' => $this->real_ip(),
+            	'ip' => real_ip(),
             	'userid' => $userid,
             	'adminid' => $adminid,
             	'user_name' => $user_name,
@@ -156,7 +156,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
             $this->getSessionTable()->insert([
             	'sesskey' => $save_sessionId,
             	'expiry' => $this->time,
-            	'ip' => $this->real_ip(),
+            	'ip' => real_ip(),
             	'data' => 'a:0:{}'
             ]);
         }
@@ -172,69 +172,18 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
 		return $this->db->table('sessions');
 	}
 
-	public function real_ip()
-	{
-	    static $realip = NULL;
+	public function generateSessionId() {
+        $id = md5(uniqid(mt_rand(), true));
 
-	    if ($realip !== NULL)
-	    {
-	        return $realip;
-	    }
+        $ip = real_ip();
+        $ip = substr($ip, 0, strrpos($ip, '.'));
 
-	    if (isset($_SERVER))
-	    {
-	        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-	        {
-	            $arr = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        if ( defined('ROOT_PATH') ) {
+            $path = ROOT_PATH;
+        } else {
+            $path = str_replace ( '\\', '/', app('config')['root_path']) . '/';
+        }
 
-	            /* 取X-Forwarded-For中第一个非unknown的有效IP字符串 */
-	            foreach ($arr AS $ip)
-	            {
-	                $ip = trim($ip);
-
-	                if ($ip != 'unknown')
-	                {
-	                    $realip = $ip;
-
-	                    break;
-	                }
-	            }
-	        }
-	        elseif (isset($_SERVER['HTTP_CLIENT_IP']))
-	        {
-	            $realip = $_SERVER['HTTP_CLIENT_IP'];
-	        }
-	        else
-	        {
-	            if (isset($_SERVER['REMOTE_ADDR']))
-	            {
-	                $realip = $_SERVER['REMOTE_ADDR'];
-	            }
-	            else
-	            {
-	                $realip = '0.0.0.0';
-	            }
-	        }
-	    }
-	    else
-	    {
-	        if (getenv('HTTP_X_FORWARDED_FOR'))
-	        {
-	            $realip = getenv('HTTP_X_FORWARDED_FOR');
-	        }
-	        elseif (getenv('HTTP_CLIENT_IP'))
-	        {
-	            $realip = getenv('HTTP_CLIENT_IP');
-	        }
-	        else
-	        {
-	            $realip = getenv('REMOTE_ADDR');
-	        }
-	    }
-
-	    preg_match("/[\d\.]{7,15}/", $realip, $onlineip);
-	    $realip = !empty($onlineip[0]) ? $onlineip[0] : '0.0.0.0';
-
-	    return $realip;
-	}
+        return $id . sprintf('%08x', crc32( $path . $ip . $id) );
+    }
 }

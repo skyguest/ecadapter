@@ -18,9 +18,9 @@ class Store implements ISession {
 	protected $started = false;
 	
 	public function __construct($name, SessionHandlerInterface $handler, $id = null) {
-		$this->setId($id);
         $this->name = $name;
         $this->handler = $handler;
+		$this->setId($id);
 	}
 
 	public function setId($id) {
@@ -207,8 +207,8 @@ class Store implements ISession {
      *
      * @return string
      */
-    protected function generateSessionId()
+    public function generateSessionId()
     {
-        return sprintf('%08x', crc32(uniqid('', true).Str::random(25).microtime(true)));
+        return $this->handler->generateSessionId();
     }
 }
