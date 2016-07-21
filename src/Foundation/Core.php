@@ -2,7 +2,7 @@
 namespace Skyguest\Ecadapter\Foundation;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpFoundation\Request;
+// use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
@@ -10,6 +10,8 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\KernelEvents;
+
+use Skyguest\Ecadapter\Http\Request;
 
 class Core {
 
@@ -43,13 +45,13 @@ class Core {
 		$this->handle();
 
 		// 请求参数
-		$request = Request::createFromGlobals();
+		$request = Request::capture();
 
 		// 设置请求
 		$this->app['request'] = $request;
 
 		// ======== 开始调度，设置调度那个控制器===============
-		$group = $group ?: 'Web';
+		$group = ucfirst($group) ?: 'Web';
 		$controller = $controller ?: $request->get('c', 'DefaultController');
 		$controller = strrpos($controller, 'Controller') !== false ? $controller : $controller . 'Controller';
 		$function = $function ?: $request->get('m', 'index');
