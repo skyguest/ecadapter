@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 use Skyguest\Ecadapter\Http\Request;
+use Skyguest\Ecadapter\Http\HttpResponseException;
 
 class Core {
 
@@ -101,6 +102,17 @@ class Core {
 		// 设置视图事件回调
 		$dispatcher->addListener(KernelEvents::VIEW, function ($event) {
 		    $event->setResponse(new Response($event->getControllerResult()));
+		});
+
+		// 设置异常回调
+		$dispatcher->addListener(KernelEvents::EXCEPTION, function($event) {
+			// 获取异常
+			$e = $event->getException();
+			// 如果是自定义异常
+			if ( $e instanceof HttpResponseException) {
+				// 设置成正常响应
+				$event->setResponse( $e->getResponse() );
+			}
 		});
 
 
