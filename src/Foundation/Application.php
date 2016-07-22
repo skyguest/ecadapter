@@ -119,4 +119,12 @@ class Application extends Container {
     {
         $this->offsetSet($id, $value);
     }
+
+    public function url($url) {
+        return $url;
+    }
+
+    public function rev($file, $manifestFile = null, $fullpath = false) {
+        return $file;
+    }
 }
