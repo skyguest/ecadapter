@@ -3,6 +3,7 @@ namespace Skyguest\Ecadapter\Session;
 
 use SessionHandlerInterface;
 use Pimple\Container;
+use Illuminate\Support\Str;
 
 class DatabaseSessionHandler implements SessionHandlerInterface {
 
@@ -92,7 +93,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
 	                return serialize($result);
                 }
             }
-        }
+        } 
     }
 
 	public function write($sessionId, $data)
@@ -152,13 +153,47 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
             ]);
 
         } else {
-            
-            $this->getSessionTable()->insert([
-            	'sesskey' => $save_sessionId,
-            	'expiry' => $this->time,
-            	'ip' => real_ip(),
-            	'data' => 'a:0:{}'
-            ]);
+
+            $data = serialize($session);
+
+            if (isset($data{255})) {
+
+                $this->getSessionTable()->insert([
+                	'sesskey' => $save_sessionId,
+                	'expiry' => $this->time,
+                	'ip' => real_ip(),
+                	'data' => 'a:0:{}',
+                    'userid' => $userid,
+                    'adminid' => $adminid,
+                    'user_name' => $user_name,
+                    'user_rank' => $user_rank,
+                    'discount' => $discount,
+                    'email' => $email,
+                ]);
+
+                $this->getDataTable()->insert([
+                    'sesskey' => $save_sessionId, 
+                    'expiry' => $this->time, 
+                    'data' => $data
+                ]);
+
+
+            } else {
+
+                $this->getSessionTable()->insert([
+                    'sesskey' => $save_sessionId,
+                    'expiry' => $this->time,
+                    'ip' => real_ip(),
+                    'data' => $data,
+                    'userid' => $userid,
+                    'adminid' => $adminid,
+                    'user_name' => $user_name,
+                    'user_rank' => $user_rank,
+                    'discount' => $discount,
+                    'email' => $email,
+                ]);
+            }
+
         }
 
         $this->exists = true;
@@ -173,7 +208,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
 	}
 
 	public function generateSessionId() {
-        $id = md5(uniqid(mt_rand(), true));
+        $id = md5( uniqid('', true).Str::random(25).microtime(true) );
 
         $ip = real_ip();
         $ip = substr($ip, 0, strrpos($ip, '.'));
