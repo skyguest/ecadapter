@@ -56,14 +56,15 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
 
 	public function read($sessionId)
     {
+        $save_sessionId = $sessionId;
     	$sessionId = substr($sessionId, 0, 32);
     	$session = $this->getSessionTable()->where('sesskey', $sessionId)->first();
 
         if (!empty($session))
         {
+            $this->exists = true;
             if (!empty($session->data) && $this->time - $session->expiry <= $this->max_life_time)
             {
-            	$this->exists = true;
                 $this->session_expiry = $session->expiry;
                 $this->session_md5    = md5($session->data);
                 $result = unserialize($session->data);
@@ -80,7 +81,6 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
                 $session_data = $this->getDataTable()->where('sesskey', $sessionId)->first();
                 if ( !empty($session_data) && !empty($session_data->data) && $this->time - $session_data->expiry <= $this->max_life_time)
                 {
-                	$this->exists = true;
                     $this->session_expiry = $session_data->expiry;
 	                $this->session_md5    = md5($session_data->data);
 	                $result = unserialize($session_data->data);
@@ -93,7 +93,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
 	                return serialize($result);
                 }
             }
-        } 
+        }
     }
 
 	public function write($sessionId, $data)
@@ -124,9 +124,9 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
 
             if (isset($data{255}))
             {
+
                 if ( $this->getDataTable()->where('sesskey', $save_sessionId)->first() ) {
-                	$this->getDataTable()->update([
-                		'sesskey' => $save_sessionId, 
+                	$this->getDataTable()->where('sesskey', $save_sessionId)->update([
                 		'expiry' => $this->time, 
                 		'data' => $data
                 	]);
@@ -193,7 +193,6 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
                     'email' => $email,
                 ]);
             }
-
         }
 
         $this->exists = true;
