@@ -180,6 +180,25 @@ class Store implements ISession {
     /**
      * {@inheritdoc}
      */
+    public function remove($name)
+    {
+        return Arr::pull($this->attributes, $name);
+    }
+
+    /**
+     * Remove one or many items from the session.
+     *
+     * @param  string|array  $keys
+     * @return void
+     */
+    public function forget($keys)
+    {
+        Arr::forget($this->attributes, $keys);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function all()
     {
         return $this->attributes;
