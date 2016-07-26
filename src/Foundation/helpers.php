@@ -75,8 +75,8 @@ if ( !function_exists('rev') ) {
 }
 
 if ( !function_exists('url') ) {
-    function url($url) {
-        return app()->url($url);
+    function url($url, $param = []) {
+        return app()->url($url, $param);
     }
 }
 

@@ -18,6 +18,8 @@ class Core {
 
 	protected $app;
 
+	protected $filename = 'skyguest.php';
+
 	protected $bootstrappers = [
         'Skyguest\Ecadapter\Foundation\Bootstrap\LoadConfig',
         'Skyguest\Ecadapter\Foundation\Bootstrap\LoadServiceProviders',
@@ -41,6 +43,10 @@ class Core {
 		return $this->bootstrappers;
 	}
 
+	public function getFileName() {
+		return $this->filename;
+	}
+
 	public function run($group = null, $controller = null, $function = null) {
 		// 注册框架运行的服务.
 		$this->handle();
@@ -50,6 +56,24 @@ class Core {
 
 		// 设置请求
 		$this->app['request'] = $request;
+
+
+		// 入口文件
+		$baseUrl = $request->getBaseUrl();
+		$this->filename = empty($baseUrl) ? $request->getSchemeAndHttpHost() . $request->server('SCRIPT_FILENAME') : $request->getSchemeAndHttpHost() . $baseUrl;
+
+		
+
+		if ( $path_info = trim($request->getPathInfo(),'/') ) {
+			$args = explode('/', $path_info);
+			define('BY_PATH_INFO', true);
+			if ( count($args) == 1 ) {
+				$controller = $controller ?: $args[0];
+			} elseif ( count($args) >= 2 ) {
+				$controller = $controller ?: $args[0];
+				$function = $function ?: $args[1];
+			}
+		}
 
 		// ======== 开始调度，设置调度那个控制器===============
 		$group = ucfirst($group) ?: 'Web';

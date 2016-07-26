@@ -2,7 +2,6 @@
 namespace Skyguest\Ecadapter\Session;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use SessionHandlerInterface;
 
 class Store implements ISession {

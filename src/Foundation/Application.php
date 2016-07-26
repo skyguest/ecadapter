@@ -120,7 +120,7 @@ class Application extends Container {
         $this->offsetSet($id, $value);
     }
 
-    public function url($url) {
+    public function url($url, $param = []) {
         return $url;
     }
 
