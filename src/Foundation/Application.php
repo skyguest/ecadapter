@@ -37,10 +37,10 @@ class Application extends Container {
 
 		if ( $this['config']['debug'] ) {
             if ( class_exists(Debug::class)) {
-                Debug::enable();
+                Debug::enable(E_ALL ^ E_NOTICE);
             } else {
                 ini_set('display_errors', 'on');
-                error_reporting(E_ALL);
+                error_reporting(E_ALL ^ E_NOTICE);
             }
 		}
 
