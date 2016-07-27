@@ -68,20 +68,6 @@ if (! function_exists('view')) {
     }
 }
 
-if (! function_exists('bcrypt')) {
-    /**
-     * Hash the given value.
-     *
-     * @param  string  $value
-     * @param  array   $options
-     * @return string
-     */
-    function bcrypt($value, $options = [])
-    {
-        return app('hash')->make($value, $options);
-    }
-}
-
 if ( !function_exists('rev') ) {
     function rev($file, $manifestFile = null, $fullpath = false) {
         return app()->rev($file, $manifestFile, $fullpath);
