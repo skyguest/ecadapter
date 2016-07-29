@@ -14,11 +14,17 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Skyguest\Ecadapter\Http\Request;
 use Skyguest\Ecadapter\Http\HttpResponseException;
 
+use Illuminate\Contracts\View\View;
+
+use Symfony\Component\Debug\Debug;
+
 class Core {
 
 	protected $app;
 
 	protected $filename = 'skyguest.php';
+
+	private $error_handler;
 
 	protected $bootstrappers = [
         'Skyguest\Ecadapter\Foundation\Bootstrap\LoadConfig',
@@ -125,7 +131,13 @@ class Core {
 
 		// 设置视图事件回调
 		$dispatcher->addListener(KernelEvents::VIEW, function ($event) {
-		    $event->setResponse(new Response($event->getControllerResult()));
+			$result = $event->getControllerResult();
+			// 重置视图的错误报告，忽略掉NOTICE的，视图太多NOTIC了
+			$error_report = error_reporting();
+			error_reporting(E_ALL ^ E_NOTICE);
+		    $event->setResponse(new Response( ($result instanceof View) ? $result->render() : $result ));
+		    // 恢复原来的错误报告
+		    error_reporting($error_report);
 		});
 
 		// 设置异常回调
@@ -152,5 +164,16 @@ class Core {
 		$response->send();
 
 		$kernel->terminate($request, $response);
+	}
+
+	public function handle_error($code, $message, $file = '', $line = 0, $context = array()) {
+
+        if ( $code == E_NOTICE) {
+        	return true;
+        }
+
+        if ($this->error_handler) {
+            return call_user_func($this->error_handler, $code, $message, $file, $line, $context);
+        }
 	}
 }
